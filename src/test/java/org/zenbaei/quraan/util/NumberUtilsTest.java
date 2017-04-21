@@ -1,10 +1,11 @@
-package org.zenbaei.quraan.utils;
+package org.zenbaei.quraan.util;
 
 import static org.junit.Assert.assertEquals;
 
 import java.io.UnsupportedEncodingException;
 
 import org.junit.Test;
+import org.zenbaei.quraan.util.NumberUtils;
 
 public class NumberUtilsTest {
 	

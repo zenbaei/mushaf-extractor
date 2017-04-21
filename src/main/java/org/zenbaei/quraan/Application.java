@@ -12,42 +12,42 @@ import org.zenbaei.quraan.token.TokenDAO;
 import org.zenbaei.quraan.token.TokenService;
 
 public class Application {
-	
-	public static final String FILE_PATH = "C:/Users/zenbaei/Downloads/mushaf-edited.doc";
-	
-	public static void main(String[] args) throws IOException {
-		
+
+	public static final String FILE_PATH = "src/main/resources/mushaf/mushaf-edited.doc";
+
+	public static void main(final String[] args) throws IOException {
+
 		HibernateService.configureSessionFactory();
-		
+
 		//List<Token> tokens = runMushafSppliter();
-		
+
 		//populateDb(tokens);
 	}
-	
+
 	public static List<Token> runMushafSppliter() throws IOException {
-		List<Token> tokens = QuraanService.parseKalematAlQuraanWord();	
+		List<Token> tokens = QuraanService.parseKalematAlQuraanWord();
 		tokens = TokenService.removeSuccessiveLineBreak(tokens);
-		
+
 		tokens.forEach(Token::print);
-				
+
 		return tokens;
 	}
-	
-	public static void populateDb(List<Token> tokens) throws IOException {
+
+	public static void populateDb(final List<Token> tokens) throws IOException {
 		//سورة ال عمران تاتي بدون عمران
-		List<Surah> surahs = QuraanService.parseSurahPages();
+		final List<Surah> surahs = QuraanService.parseSurahPages();
 		surahs.get(2).surah = "سُورَةُ آلِ عِمۡرَانَ";
-		
+
 		TokenDAO.insert(tokens);
-		
+
 		SurahDAO.insert(surahs);
-		
+
 		TokenDAO.updateWrongTokens();
-		
+
 		TokenDAO.insertMissingAyahNumber();
-		
+
 		System.out.println("---------done----------");
 	}
-	
-	
+
+
 }

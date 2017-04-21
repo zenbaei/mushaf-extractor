@@ -1,4 +1,4 @@
-package org.zenbaei.quraan.utils;
+package org.zenbaei.quraan.util;
 
 import java.util.HashMap;
 import java.util.Map;

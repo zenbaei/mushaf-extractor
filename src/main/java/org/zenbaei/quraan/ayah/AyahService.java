@@ -7,7 +7,7 @@ import java.util.regex.Pattern;
 
 import org.zenbaei.quraan.page.Page;
 import org.zenbaei.quraan.surah.SurahService;
-import org.zenbaei.quraan.utils.NumberUtils;
+import org.zenbaei.quraan.util.NumberUtils;
 
 public class AyahService {
 	
