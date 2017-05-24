@@ -14,7 +14,7 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.zenbaei.quraan.Application;
-import org.zenbaei.quraan.token.Token;
+import org.zenbaei.quraan.domain.Token;
 import org.zenbaei.quraan.token.TokenDAO;
 
 public class DisplayingMushafPageTest {

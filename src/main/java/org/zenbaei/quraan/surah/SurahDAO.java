@@ -3,6 +3,7 @@ package org.zenbaei.quraan.surah;
 import java.util.List;
 
 import org.zenbaei.quraan.all.HibernateService;
+import org.zenbaei.quraan.domain.Surah;
 
 public class SurahDAO {
 

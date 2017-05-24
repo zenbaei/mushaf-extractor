@@ -5,15 +5,13 @@ import java.util.List;
 
 import org.zenbaei.quraan.all.HibernateService;
 import org.zenbaei.quraan.all.QuraanService;
-import org.zenbaei.quraan.surah.Surah;
+import org.zenbaei.quraan.domain.Surah;
+import org.zenbaei.quraan.domain.Token;
+import org.zenbaei.quraan.service.TokenService;
 import org.zenbaei.quraan.surah.SurahDAO;
-import org.zenbaei.quraan.token.Token;
 import org.zenbaei.quraan.token.TokenDAO;
-import org.zenbaei.quraan.token.TokenService;
 
 public class Application {
-
-	public static final String FILE_PATH = "src/main/resources/mushaf/mushaf-edited.doc";
 
 	public static void main(final String[] args) throws IOException {
 

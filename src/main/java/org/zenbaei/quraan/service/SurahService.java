@@ -1,4 +1,4 @@
-package org.zenbaei.quraan.surah;
+package org.zenbaei.quraan.service;
 
 import java.util.ArrayList;
 import java.util.List;

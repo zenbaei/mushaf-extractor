@@ -1,4 +1,4 @@
-package org.zenbaei.quraan.ayah;
+package org.zenbaei.quraan.domain;
 
 public class Ayah {
 

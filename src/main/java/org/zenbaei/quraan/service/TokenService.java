@@ -1,11 +1,12 @@
-package org.zenbaei.quraan.token;
+package org.zenbaei.quraan.service;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.zenbaei.quraan.ayah.Ayah;
+import org.zenbaei.quraan.domain.Ayah;
+import org.zenbaei.quraan.domain.Token;
 
 public class TokenService {
 

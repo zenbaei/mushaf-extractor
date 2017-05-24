@@ -1,4 +1,4 @@
-package org.zenbaei.quraan.surah;
+package org.zenbaei.quraan.domain;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;

@@ -1,4 +1,4 @@
-package org.zenbaei.quraan.token;
+package org.zenbaei.quraan.domain;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;

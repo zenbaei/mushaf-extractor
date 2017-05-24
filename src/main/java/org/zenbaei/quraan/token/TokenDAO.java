@@ -6,6 +6,7 @@ import java.util.List;
 import org.hibernate.Query;
 import org.hibernate.SQLQuery;
 import org.zenbaei.quraan.all.HibernateService;
+import org.zenbaei.quraan.domain.Token;
 
 public class TokenDAO {
 
