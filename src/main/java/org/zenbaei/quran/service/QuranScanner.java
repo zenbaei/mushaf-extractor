@@ -146,7 +146,7 @@ public class QuranScanner {
 			AyahRange ay;
 
 			if (ayahs.isEmpty()) {
-				ay = new AyahRange(0, 0, Optional.of(splittedPage.trim()));
+				ay = new AyahRange(0, 0, splittedPage.trim());
 			} else {
 				ay = new AyahRange(ayahs.get(0).enNumber,
 						ayahs.get(ayahs.size() - 1).enNumber, extractSurahName(splittedPage));
@@ -165,13 +165,13 @@ public class QuranScanner {
 	 * @param content
 	 * @return
 	 */
-	private static Optional<String> extractSurahName(final String content) {
+	private static String extractSurahName(final String content) {
 		final Pattern pattern = Pattern.compile(SURAH_NAME_REGEX);
 		final Matcher matcher = pattern.matcher(content.trim());
 		if (matcher.lookingAt()) {
-			return Optional.of(matcher.group().trim());
+			return matcher.group().trim();
 		}
-		return Optional.empty();
+		return "";
 	}
 
 }

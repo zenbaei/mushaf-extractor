@@ -14,7 +14,6 @@ import java.nio.file.StandardOpenOption;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.zenbaei.quran.BaseTest;
-import org.zenbaei.quran.service.QuranExtractor;
 
 public class QuranExtractorTest extends BaseTest {
 
@@ -22,14 +21,32 @@ public class QuranExtractorTest extends BaseTest {
 
 	@BeforeClass
 	public static void setup() {
-		extractQuraan();
+		writeQuranContent();
+		writeQuranMetadata();
+		writeQuranIndex();
 	}
 
-	private static void extractQuraan() {
+	private static void writeQuranContent() {
 		try {
-			QuranExtractor.writePagesToTextFiles(StandardOpenOption.CREATE_NEW);
+			QuranExtractor.writeContentPerQuranPage(StandardOpenOption.CREATE_NEW);
 		} catch (final Exception e) {
-			LOG.info("Quraan text files have been already extracted");
+			LOG.info("Quran text files have been already extracted");
+		}
+	}
+
+	private static void writeQuranMetadata() {
+		try {
+			QuranExtractor.writeMetadataPerQuranPage(StandardOpenOption.CREATE_NEW);
+		} catch (final Exception e) {
+			LOG.info("Quran metadata files have been already extracted");
+		}
+	}
+
+	private static void writeQuranIndex() {
+		try {
+			QuranExtractor.writeQuranIndex(StandardOpenOption.CREATE_NEW);
+		} catch (final Exception e) {
+			LOG.info("Quran index file has been already extracted");
 		}
 	}
 
@@ -56,6 +73,34 @@ public class QuranExtractorTest extends BaseTest {
 
 			final String originalDoc = pages.get(i).content.replaceAll("\n", "").trim();
 			assertThat(textFileContent.toString().trim(), is(equalTo(originalDoc)));
+			reader.close();
 		}
+	}
+
+	@Test
+	public void test_write_quran_metadata_under_the_expected_folders() throws IOException {
+		for (int i = 0; i < pages.size(); i++) {
+			final int pageNu = i + 1;
+			final String dir = EXPECTED_OUTPUT_DIR + pageNu + "/";
+			final String file = pageNu + ".metadata";
+			final Path path = Paths.get(dir, file);
+			assertThat(Files.exists(path), is(true));
+
+			final BufferedReader reader = Files.newBufferedReader(path);
+			assertThat(reader.readLine().isEmpty(), is(false));
+			reader.close();
+		}
+	}
+
+	@Test
+	public void test_write_quran_index_under_the_expected_folders() throws IOException {
+		final String dir = EXPECTED_OUTPUT_DIR;
+		final String file = "quran.index";
+		final Path path = Paths.get(dir, file);
+		assertThat(Files.exists(path), is(true));
+
+		final BufferedReader reader = Files.newBufferedReader(path);
+		assertThat(reader.readLine().isEmpty(), is(false));
+		reader.close();
 	}
 }
