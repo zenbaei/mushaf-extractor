@@ -4,7 +4,7 @@ import java.util.Optional;
 
 public class ArabicUtils {
 
-	private static final String[] searchList = {"\u0610", "\u0611", "\u0612", "\u0613",
+	private static final String[] TASHKIL_CHARACTERS = {"\u0610", "\u0611", "\u0612", "\u0613",
             "\u0614", "\u0615", "\u0616", "\u0617", "\u0618", "\u0619", "\u061A", "\u06D6", "\u06D7",
             "\u06D8", "\u06D9", "\u06DA", "\u06DB", "\u06DC", "\u06DD", "\u06DE", "\u06DF", "\u06E0",
             "\u06E1", "\u06E2", "\u06E3", "\u06E4", "\u06E5", "\u06E6", "\u06E7", "\u06E8", "\u06E9",
@@ -21,21 +21,19 @@ public class ArabicUtils {
      * @param input
      * @return
      */
-    public static String normalizeEnhanced(String input) {
-
-        for (final String s : searchList) {
+    public static String removeTashkil(String input) {
+        for (final String s : TASHKIL_CHARACTERS) {
             if (input.contains(s)) {
-                input = input.replace(s, EMPTY_STRING);
+                input =  input.replace(s, EMPTY_STRING);
             }
         }
-
         return input;
     }
 
     /**
-     * create a string representing arabic numbers in unicode separated by regex '|' operator.
+     * Creates a string representing arabic numbers in unicode characters separated by regex '|' operator.
      *
-     * @param suffix Optionally  append a regex expression after the arabic number
+     * @param suffix to optionally append a regex expression after the arabic number
      * @return
      */
     public static String formRegexWithArabicNumbers(final Optional<String> suffixRegex) {

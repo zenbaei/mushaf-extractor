@@ -7,8 +7,8 @@ package org.zenbaei.quran.domain;
  *
  */
 public class Page {
-	public int number;
-	public String content;
+	public final int number;
+	public final String content;
 
 	public Page(final int number, final String content) {
 		this.number = number;

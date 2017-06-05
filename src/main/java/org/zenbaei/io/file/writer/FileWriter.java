@@ -1,4 +1,4 @@
-package org.zenbaei.quran.service;
+package org.zenbaei.io.file.writer;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -8,21 +8,22 @@ import java.nio.file.Files;
 import java.nio.file.OpenOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Writes Quraan to file system.
+ * General file writer service.
  *
  * @author zenbaei
  *
  */
-public class Writer {
+public class FileWriter {
 
-	private static final Logger LOG = LoggerFactory.getLogger(Writer.class.getName());
+	private static final Logger LOG = LoggerFactory.getLogger(FileWriter.class.getName());
 
-	private Writer() {
+	private FileWriter() {
 	}
 
 	/**
@@ -34,10 +35,16 @@ public class Writer {
 	 * @throws UncheckedIOException
 	 */
 	public static void write(final String filePath, final String content, final OpenOption openOption) {
-		LOG.info("Writing file [{}] , file open option [{}]", filePath, openOption);
+		LOG.info("Write file [{}] , file open option [{}]", filePath, openOption);
 		final Path path = Paths.get(filePath);
+		final OpenOption option =
+				(openOption == CustomOpenOption.OVERRIDE) ? StandardOpenOption.CREATE_NEW : openOption;
+
 		try {
-			try ( final BufferedWriter writer = Files.newBufferedWriter(path, Charset.forName("UTF-8"), openOption) ) {
+			if (openOption == CustomOpenOption.OVERRIDE) {
+				Files.delete(path);
+			}
+			try ( final BufferedWriter writer = Files.newBufferedWriter(path, Charset.forName("UTF-8"), option) ) {
 				writer.write(content);
 			}
 		} catch (final IOException e) {
@@ -55,16 +62,19 @@ public class Writer {
 	 * @throws UncheckedIOException
 	 */
 	public static void createDirectory(final String dir) {
+		LOG.info("Create directory [{}]", dir);
 		final Path path = Paths.get(dir);
-		if (Files.notExists(path)) {
-			try {
-				Files.createDirectories(path);
-			} catch (final IOException e) {
-				throw new UncheckedIOException(e);
-			}
+
+		if (Files.exists(path)) {
+			LOG.warn("Directory already exists");
+			return;
+		}
+
+		try {
+			Files.createDirectories(path);
+		} catch (final IOException e) {
+			throw new UncheckedIOException(e);
 		}
 	}
-
-
 
 }

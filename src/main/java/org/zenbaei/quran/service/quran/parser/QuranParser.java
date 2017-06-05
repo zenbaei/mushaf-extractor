@@ -1,4 +1,4 @@
-package org.zenbaei.quran.service;
+package org.zenbaei.quran.service.quran.parser;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -8,13 +8,16 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.zenbaei.quran.domain.Ayah;
-import org.zenbaei.quran.domain.AyahRange;
 import org.zenbaei.quran.domain.Page;
+import org.zenbaei.quran.domain.QuranMetadata;
+import org.zenbaei.quran.service.SurahService;
 import org.zenbaei.quran.util.ArabicUtils;
 import org.zenbaei.quran.util.NumberUtils;
 
-public class QuranScanner {
+public class QuranParser {
 
 	private static final String PAGE_REGEX = ArabicUtils.formRegexWithArabicNumbers(Optional.of("\\S*$"));
 	private static final String AYAH_REGEX = ArabicUtils.formRegexWithArabicNumbers(Optional.of("\\S*\\s"));
@@ -22,12 +25,12 @@ public class QuranScanner {
 	private static final String SURAH_LITERAL = "سُورَةُ";
 	private static final String SURAH_NAME_REGEX = "\\S+\\s?\\S*(\\r\\n|\\n)";
 
-	private QuranScanner() {}
+	private QuranParser() {}
 
 	/**
-	 * Scans mushaf string, splits on page ending and return a list of pages.
+	 * Scans mushaf string, splits on pages' ending constructing a {@code Page} per mushaf string page.
 	 *
-	 * @param content
+	 * @param content representing mushaf content
 	 * @return {@code List} of {@code Page}
 	 */
 	public static List<Page> toPages(final String content) {
@@ -91,7 +94,10 @@ public class QuranScanner {
 
 		if (!surahHeading.trim().isEmpty()) {
 			final Ayah lastAyah = ayahs.get(ayahs.size() - 1);
-			lastAyah.sentence += "\r\n";
+			final Ayah modifiedAyah = new Ayah(lastAyah.pageNumber, lastAyah.arNumber,
+					lastAyah.enNumber, lastAyah.sentence + "\r\n");
+			ayahs.remove(lastAyah);
+			ayahs.add(modifiedAyah);
 			final Ayah a = new Ayah(number, lastAyah.arNumber, lastAyah.enNumber, surahHeading);
 			ayahs.add(a);
 		}
@@ -121,21 +127,24 @@ public class QuranScanner {
 	}
 
 	/**
-	 * Return a single {@code AyahRange} if the page contains only ayat from one surah or a list
-	 * of AyahRange if the page has more than one surah. It uses {@code QuraanScanner#toAyahs(Page)}.
+	 * Returns the ayah start and end position along with surah name for the given string.
 	 *
-	 * It splits page by 'سورة' literal then scan starting and ending ayah range for each splitted block then
-	 * for each splitted block it extracts the first word on the first line as the surah name.
+	 * <p>
+	 * It splits the string content by 'سورة' literal then scans the starting and ending ayah range for each splitted block then
+	 * for each splitted block it uses the first line as surah name.
+	 * </p>
 	 *
-	 * @param content the content of the mushaf page
-	 * @return a List of AyahRange
+	 * @param content the string content of the mushaf page
+	 *
+	 * @return a List of AyahRange the List will contain a single {@code AyahRange} if the string contains only ayat from one surah or many
+	 * AyahRange if the string contains more than one surah
 	 */
-	public static List<AyahRange> toAyahRanges(final String content) {
+	public static List<QuranMetadata> toMetadata(final String content) {
 		final String[] result =  content.split(SURAH_LITERAL);
 		final List<String> surahs = Arrays.stream(result)
 				.filter(str -> !str.trim().isEmpty())
 				.collect(Collectors.toList());
-		final List<AyahRange> ayahRanges = new ArrayList<>();
+		final List<QuranMetadata> ayahRanges = new ArrayList<>();
 
 		if (surahs.isEmpty()) {
 			surahs.add(content);
@@ -143,12 +152,12 @@ public class QuranScanner {
 
 		for (final String splittedPage : surahs) {
 			final List<Ayah> ayahs = toAyahs(splittedPage, 0); // page number is not needed here
-			AyahRange ay;
+			QuranMetadata ay;
 
 			if (ayahs.isEmpty()) {
-				ay = new AyahRange(0, 0, splittedPage.trim());
+				ay = new QuranMetadata(0, 0, splittedPage.trim());
 			} else {
-				ay = new AyahRange(ayahs.get(0).enNumber,
+				ay = new QuranMetadata(ayahs.get(0).enNumber,
 						ayahs.get(ayahs.size() - 1).enNumber, extractSurahName(splittedPage));
 			}
 
@@ -158,12 +167,44 @@ public class QuranScanner {
 	}
 
 	/**
+	 * Scans the Page and returns mushaf surahs with their page number.
+	 *
+	 * <p>
+	 * Pages with no surah will be ignored and Pages with surah as last line
+	 * will have their page number incremented by one.
+	 * </p>
+	 *
+	 * @param pages
+	 *
+	 * @return {@code List<Pair<String,Integer>>} as surah name and its page number
+	 */
+	public static List<Pair<String, Integer>> quranIndex(final List<Page> pages) {
+		final List<Pair<String, Integer>> list = new ArrayList<>();
+		pages.forEach(pg ->
+			QuranParser.toMetadata(pg.content)
+					.stream()
+					.filter(ay -> StringUtils.isNotEmpty(ay.surahName))
+					.forEach(ay -> {
+						int pageNumber = pg.number;
+						if (ay.fromAyah == 0) { // surah as last line
+							pageNumber++;
+						}
+						list.add( Pair.of(ay.surahName, pageNumber) );
+					})
+				);
+		return list;
+	}
+
+	/**
 	 * It is not a general method. It depends on having the surah name in first line with no "سورة" literal.
 	 *
-	 * It extracts the first word on the first line.
+	 * <p>
+	 * It extracts the first word on the first line based on a regex.
+	 * </p>
 	 *
 	 * @param content
-	 * @return
+	 *
+	 * @return String as surah name or empty String if no matching
 	 */
 	private static String extractSurahName(final String content) {
 		final Pattern pattern = Pattern.compile(SURAH_NAME_REGEX);

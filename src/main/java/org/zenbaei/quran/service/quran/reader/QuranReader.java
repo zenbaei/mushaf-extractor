@@ -1,4 +1,4 @@
-package org.zenbaei.quran.service;
+package org.zenbaei.quran.service.quran.reader;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -11,14 +11,14 @@ import org.apache.poi.hwpf.extractor.WordExtractor;
 public class QuranReader {
 
 	/**
-	 * Reads mushaf word doc and splits it by pages.
+	 * Reads mushaf word document and appends it to a string.
 	 *
-	 * @param in
-	 * @return {@code List} of {@code Page}.
-	 * @throws IOException
+	 * @param filePath the Word document file path
+	 * @return String representing mushaf content
+	 * @throws UncheckedIOException
 	 */
-	public static String asString(final String fileName) {
-		final File file = new File(fileName);
+	public static String asString(final String filePath) {
+		final File file = new File(filePath);
 		final StringBuilder content = new StringBuilder();
 
 		try {

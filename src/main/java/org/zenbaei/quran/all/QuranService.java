@@ -9,14 +9,14 @@ import org.zenbaei.quran.domain.Ayah;
 import org.zenbaei.quran.domain.Page;
 import org.zenbaei.quran.domain.Surah;
 import org.zenbaei.quran.domain.Token;
-import org.zenbaei.quran.service.QuranReader;
-import org.zenbaei.quran.service.QuranScanner;
 import org.zenbaei.quran.service.SurahService;
 import org.zenbaei.quran.service.TokenService;
+import org.zenbaei.quran.service.quran.parser.QuranParser;
+import org.zenbaei.quran.service.quran.reader.QuranReader;
 
 public class QuranService {
 
-	public static final List<Page> pages = QuranScanner.toPages( QuranReader.asString(Constants.QURAN_MODIFIED_DOC_FILE_PATH) );
+	public static final List<Page> pages = QuranParser.toPages( QuranReader.asString(Constants.QURAN_MODIFIED_DOC_FILE_PATH) );
 	private static final Logger LOG = LoggerFactory.getLogger(QuranService.class.getName());
 
 	static{
@@ -27,7 +27,7 @@ public class QuranService {
 		final List<Token> tokensList = new ArrayList<>();
 
 		for(final Page p : pages){
-			final List<Ayah> ayahs = QuranScanner.toAyahs(p.content, p.number);
+			final List<Ayah> ayahs = QuranParser.toAyahs(p.content, p.number);
 			ayahs.forEach( a -> {
 				final List<Token> tokens = TokenService.splitByTokens(a);
 				tokensList.addAll(tokens);
