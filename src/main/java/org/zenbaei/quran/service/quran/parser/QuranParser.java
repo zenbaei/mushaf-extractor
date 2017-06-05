@@ -9,11 +9,10 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
 import org.zenbaei.quran.domain.Ayah;
 import org.zenbaei.quran.domain.Page;
 import org.zenbaei.quran.domain.QuranMetadata;
-import org.zenbaei.quran.service.SurahService;
+import org.zenbaei.quran.domain.SurahIndex;
 import org.zenbaei.quran.util.ArabicUtils;
 import org.zenbaei.quran.util.NumberUtils;
 
@@ -113,7 +112,7 @@ public class QuranParser {
 		if (lastLine.trim().isEmpty())
 			return "";
 
-		return SurahService.extractSurahHeading(lastLine);
+		return extractSurahHeading(lastLine);
 	}
 
 	private static void assertNotMissingAyahWithinSamePage(final int currentNumber, final List<Ayah> ayahs) {
@@ -167,7 +166,7 @@ public class QuranParser {
 	}
 
 	/**
-	 * Scans the Page and returns mushaf surahs with their page number.
+	 * Parses the Page content to extract surah name and page number.
 	 *
 	 * <p>
 	 * Pages with no surah will be ignored and Pages with surah as last line
@@ -176,10 +175,10 @@ public class QuranParser {
 	 *
 	 * @param pages
 	 *
-	 * @return {@code List<Pair<String,Integer>>} as surah name and its page number
+	 * @return {@code List<SurahIndex>}
 	 */
-	public static List<Pair<String, Integer>> quranIndex(final List<Page> pages) {
-		final List<Pair<String, Integer>> list = new ArrayList<>();
+	public static List<SurahIndex> quranIndex(final List<Page> pages) {
+		final List<SurahIndex> list = new ArrayList<>();
 		pages.forEach(pg ->
 			QuranParser.toMetadata(pg.content)
 					.stream()
@@ -189,7 +188,7 @@ public class QuranParser {
 						if (ay.fromAyah == 0) { // surah as last line
 							pageNumber++;
 						}
-						list.add( Pair.of(ay.surahName, pageNumber) );
+						list.add( new SurahIndex(ay.surahName, pageNumber) );
 					})
 				);
 		return list;
@@ -213,6 +212,23 @@ public class QuranParser {
 			return matcher.group().trim();
 		}
 		return "";
+	}
+
+	public static String extractSurahHeading(final String block) {
+		String regex = "\\s\\S+";//\\s"; // space then non space(one or more) then space
+		regex = "سُورَةُ" + regex;
+
+		final Pattern p = Pattern.compile(regex);
+		final Matcher m = p.matcher(block);
+
+		if (!m.find())
+			return "";
+
+		final String surah = m.group() + " "; //added space for split by ayah to recognize the second token of surah
+		//	surah = StringUtils.remove(surah, (char) 11);
+
+		return surah;
+		// StringUtils.removePattern(page.block, p.pattern());
 	}
 
 }

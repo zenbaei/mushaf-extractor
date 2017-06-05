@@ -1,9 +1,5 @@
 package org.zenbaei.quran.service.quran.extractor;
 
-import static org.zenbaei.quran.all.Constants.METADATA_FILE_EXTENSION;
-import static org.zenbaei.quran.all.Constants.QURAN_FILE_EXTENSION;
-import static org.zenbaei.quran.all.Constants.QURAN_INDEX_FILE_PATH;
-
 import java.nio.file.OpenOption;
 import java.nio.file.StandardOpenOption;
 import java.util.List;
@@ -20,7 +16,6 @@ import org.zenbaei.quran.service.quran.parser.QuranParserHelper;
 import org.zenbaei.quran.service.quran.reader.QuranReader;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 
 /**
  * Extracts from mushaf doc to text file, each file represents a page from the document.
@@ -55,7 +50,7 @@ public class QuranFileExtractorImpl implements QuranExtractor {
 	 */
 	@Override
 	public void extractContentPerQuranPage(final OpenOption openOption) {
-		write(QURAN_FILE_EXTENSION, openOption, pg -> pg.content);
+		write(Constants.QURAN_FILE_EXTENSION, openOption, pg -> pg.content);
 	}
 
 	/**
@@ -66,7 +61,7 @@ public class QuranFileExtractorImpl implements QuranExtractor {
 	 */
 	@Override
 	public void extractMetadataPerQuranPage(final OpenOption openOption) {
-		write(METADATA_FILE_EXTENSION, openOption, pg -> {
+		write(Constants.METADATA_FILE_EXTENSION, openOption, pg -> {
 			final List<QuranMetadata> metadataList = QuranParser.toMetadata(pg.content);
 			final List<QuranMetadata> metas = QuranParserHelper.fillEmptySurahNameFromPreviousOne(metadataList);
 			final String metadataListAsJson = gson.toJson(metas);
@@ -81,15 +76,12 @@ public class QuranFileExtractorImpl implements QuranExtractor {
 
 		final StringBuilder strBld = new StringBuilder();
 		QuranParser.quranIndex(pages)
-			.forEach(pair -> {
-				final JsonObject jsonObj = new JsonObject();
-				jsonObj.addProperty("key", pair.getKey());
-				jsonObj.addProperty("value", pair.getValue());
-				final String json = gson.toJson(jsonObj);
+			.forEach(surahIndex -> {
+				final String json = gson.toJson(surahIndex);
 				strBld.append(json).append(System.lineSeparator());
 			});
 
-		FileWriter.write(QURAN_INDEX_FILE_PATH, strBld.toString(), openOption);
+		FileWriter.write(Constants.QURAN_INDEX_FILE_PATH, strBld.toString(), openOption);
 	}
 
 	private void write(final String fileExtension, final OpenOption openOption, final Function<Page, String> function) {

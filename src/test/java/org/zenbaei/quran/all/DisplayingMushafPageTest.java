@@ -11,33 +11,27 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.List;
 
-import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
-import org.zenbaei.quran.Application;
-import org.zenbaei.quran.all.HibernateService;
-import org.zenbaei.quran.all.QuranService;
+import org.zenbaei.quran.domain.Page;
 import org.zenbaei.quran.domain.Token;
+import org.zenbaei.quran.service.quran.parser.QuranParser;
+import org.zenbaei.quran.service.quran.reader.QuranReader;
 import org.zenbaei.quran.token.TokenDAO;
 
+@Ignore
 public class DisplayingMushafPageTest {
 
-
-	@Before
-	public void init() throws IOException{
-		HibernateService.configureSessionFactory();
-		Application.populateDb(Application.runMushafSppliter());
-	}
+	List<Page> pages = QuranParser.toPages(
+			QuranReader.asString(Constants.QURAN_MODIFIED_DOC_FILE_PATH) );
 
 
 	@Test
 	public void assertLoadedPageSameAsWordPage(){
-		HibernateService.configureSessionFactory();
-
-
-		for(int page = 0; page < QuranService.pages.size(); page++){
+		for(int page = 0; page < pages.size(); page++){
 			final StringBuilder strBuilder = getTokensAsStringBuilder(page);
 
-			final String pageContent = QuranService.pages.get(page).content;
+			final String pageContent = pages.get(page).content;
 			final String dbContent =  strBuilder.toString();
 
 			//split content by lines instead of being all one line

@@ -6,12 +6,12 @@ import static org.junit.Assert.assertThat;
 
 import java.util.List;
 
-import org.apache.commons.lang3.tuple.Pair;
 import org.junit.Test;
 import org.zenbaei.quran.BaseTest;
 import org.zenbaei.quran.all.Constants;
 import org.zenbaei.quran.domain.Page;
 import org.zenbaei.quran.domain.QuranMetadata;
+import org.zenbaei.quran.domain.SurahIndex;
 import org.zenbaei.quran.service.quran.reader.QuranReader;
 import org.zenbaei.quran.util.ArabicUtils;
 
@@ -107,41 +107,41 @@ public class QuranParserTest extends BaseTest {
 
 	@Test
 	public void test_quranIndex_size_should_be_114() {
-		final List<Pair<String, Integer>> qIdx = QuranParser.quranIndex(PAGES);
+		final List<SurahIndex> qIdx = QuranParser.quranIndex(PAGES);
 		assertThat(qIdx.size(), is(Constants.QURAN_TOTAL_SURAH_COUNT));
 	}
 
 	@Test
 	public void test_quranIndex_for_surah_alone_on_page() {
-		final List<Pair<String, Integer>> qIdx = QuranParser.quranIndex(PAGES);
-		final String expectedSurahName = ArabicUtils.removeTashkil(qIdx.get(1).getKey());
+		final List<SurahIndex> qIdx = QuranParser.quranIndex(PAGES);
+		final String expectedSurahName = ArabicUtils.removeTashkil(qIdx.get(1).surahName);
 		assertThat(expectedSurahName, is(equalTo("البقرة")));
-		assertThat(qIdx.get(1).getValue(), is(2));
+		assertThat(qIdx.get(1).pageNumber, is(2));
 	}
 
 	@Test
 	public void test_quranIndex_for_surah_with_others_on_page() {
-		final List<Pair<String, Integer>> qIdx = QuranParser.quranIndex(PAGES);
+		final List<SurahIndex> qIdx = QuranParser.quranIndex(PAGES);
 
-		final Pair<String,Integer> alNasIndex = qIdx.get(Constants.QURAN_TOTAL_SURAH_COUNT - 1);
-		final String expectedSurahName = ArabicUtils.removeTashkil(alNasIndex.getKey());
+		final SurahIndex alNasIndex = qIdx.get(Constants.QURAN_TOTAL_SURAH_COUNT - 1);
+		final String expectedSurahName = ArabicUtils.removeTashkil(alNasIndex.surahName);
 		assertThat(expectedSurahName, is(equalTo("الناس")));
-		assertThat(alNasIndex.getValue(), is(Constants.QURAN_TOTAL_PAGE_COUNT));
+		assertThat(alNasIndex.pageNumber, is(Constants.QURAN_TOTAL_PAGE_COUNT));
 
-		final Pair<String,Integer> alFalaqIndex = qIdx.get(Constants.QURAN_TOTAL_SURAH_COUNT - 2);
-		final String alFalaqSurahName = ArabicUtils.removeTashkil(alFalaqIndex.getKey());
+		final SurahIndex alFalaqIndex = qIdx.get(Constants.QURAN_TOTAL_SURAH_COUNT - 2);
+		final String alFalaqSurahName = ArabicUtils.removeTashkil(alFalaqIndex.surahName);
 		assertThat(alFalaqSurahName, is(equalTo("الفلق")));
-		assertThat(alFalaqIndex.getValue(), is(Constants.QURAN_TOTAL_PAGE_COUNT));
+		assertThat(alFalaqIndex.pageNumber, is(Constants.QURAN_TOTAL_PAGE_COUNT));
 	}
 
 	@Test
 	public void test_quranIndex_for_surah_as_last_line_on_page() {
-		final List<Pair<String, Integer>> qIdx = QuranParser.quranIndex(PAGES);
-		final Pair<String,Integer> alNoorIndex = qIdx.get(24 - 1);
+		final List<SurahIndex> qIdx = QuranParser.quranIndex(PAGES);
+		final SurahIndex alNoorIndex = qIdx.get(24 - 1);
 
-		final String expectedSurahName = ArabicUtils.removeTashkil(alNoorIndex.getKey());
+		final String expectedSurahName = ArabicUtils.removeTashkil(alNoorIndex.surahName);
 		assertThat(expectedSurahName, is(equalTo("النور")));
-		assertThat(alNoorIndex.getValue(), is(350));
+		assertThat(alNoorIndex.pageNumber, is(350));
 	}
 
 }

@@ -21,8 +21,6 @@ import org.zenbaei.io.file.writer.CustomOpenOption;
 import org.zenbaei.quran.BaseTest;
 import org.zenbaei.quran.all.Constants;
 import org.zenbaei.quran.domain.Page;
-import org.zenbaei.quran.service.quran.extractor.QuranFileExtractorImpl;
-import org.zenbaei.quran.service.quran.extractor.QuranExtractor;
 import org.zenbaei.quran.service.quran.parser.QuranParser;
 import org.zenbaei.quran.service.quran.reader.QuranReader;
 
@@ -67,7 +65,7 @@ public class QuranFileExtractorImplTest extends BaseTest {
 	}
 
 	@Test
-	public void test_write_quran_metadata_under_the_expected_folders() throws IOException {
+	public void test_extract_quran_metadata_under_the_expected_folders() throws IOException {
 		for (int i = 0; i < PAGES.size(); i++) {
 			final int pageNu = i + 1;
 			final String dir = EXPECTED_OUTPUT_DIR + pageNu + "/";
@@ -82,13 +80,26 @@ public class QuranFileExtractorImplTest extends BaseTest {
 	}
 
 	@Test
-	public void test_write_quran_index_under_the_expected_folders() throws IOException {
+	public void test_extract_quran_index_under_the_expected_folders() throws IOException {
 		final String dir = EXPECTED_OUTPUT_DIR;
 		final Path path = Paths.get(dir, Constants.QURAN_INDEX_FILE_NAME);
 		assertThat(Files.exists(path), is(true));
 
 		final BufferedReader reader = Files.newBufferedReader(path);
 		assertThat(reader.readLine().isEmpty(), is(false));
+		reader.close();
+	}
+
+	@Test
+	public void test_quran_index_extracted_content() throws IOException {
+		final String expected_string = "{\"surahName\":\"الفَاتِحَةِ\",\"pageNumber\":1}";
+		final String dir = EXPECTED_OUTPUT_DIR;
+		final Path path = Paths.get(dir, Constants.QURAN_INDEX_FILE_NAME);
+		assertThat(Files.exists(path), is(true));
+
+		final BufferedReader reader = Files.newBufferedReader(path);
+		final String firstLine = reader.readLine();
+		assertThat(firstLine, is(equalTo(expected_string)));
 		reader.close();
 	}
 
