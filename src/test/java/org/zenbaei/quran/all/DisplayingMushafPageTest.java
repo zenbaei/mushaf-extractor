@@ -25,7 +25,6 @@ public class DisplayingMushafPageTest {
 	List<Page> pages = QuranParser.toPages(
 			QuranReader.asString(Constants.QURAN_MODIFIED_DOC_FILE_PATH) );
 
-
 	@Test
 	public void assertLoadedPageSameAsWordPage(){
 		for(int page = 0; page < pages.size(); page++){

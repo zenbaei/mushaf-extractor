@@ -5,7 +5,7 @@ public class Constants {
 	/** Modified version of mushaf */
 	public static final String QURAN_MODIFIED_DOC_FILE_PATH = "src/main/resources/mushaf/mushaf-edited.doc";
 
-	public static final String QURAN_ORIGINAL_DOC_FILE_PATH = "src/main/resources/mushaf/UthmanicHafs1Ver09.doc";
+	// public static final String QURAN_ORIGINAL_DOC_FILE_PATH = "src/main/resources/mushaf/UthmanicHafs1Ver09.doc";
 
 	public static final String QURAN_EXTRACTED_FILES_BASE_PATH = "src/main/resources/data/";
 

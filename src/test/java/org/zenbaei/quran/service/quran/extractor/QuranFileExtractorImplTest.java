@@ -1,5 +1,6 @@
 package org.zenbaei.quran.service.quran.extractor;
 
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
@@ -8,6 +9,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
+import java.nio.file.OpenOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
@@ -17,7 +19,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.zenbaei.io.file.writer.CustomOpenOption;
 import org.zenbaei.quran.BaseTest;
 import org.zenbaei.quran.all.Constants;
 import org.zenbaei.quran.domain.Page;
@@ -31,6 +32,7 @@ public class QuranFileExtractorImplTest extends BaseTest {
 			QuranReader.asString(Constants.QURAN_MODIFIED_DOC_FILE_PATH) );
 	private static final QuranExtractor quranFileWriterImpl = QuranFileExtractorImpl.getInstance();
 	private static final Logger LOG = LoggerFactory.getLogger(QuranFileExtractorImplTest.class);
+	private static final OpenOption OPEN_OPTION = StandardOpenOption.CREATE_NEW;
 
 	@BeforeClass
 	public static void setup() {
@@ -99,23 +101,23 @@ public class QuranFileExtractorImplTest extends BaseTest {
 
 		final BufferedReader reader = Files.newBufferedReader(path);
 		final String firstLine = reader.readLine();
-		assertThat(firstLine, is(equalTo(expected_string)));
+		assertThat(firstLine, containsString(expected_string));
 		reader.close();
 	}
 
 	private static void extract() {
 		try {
-			quranFileWriterImpl.extractContentPerQuranPage(StandardOpenOption.CREATE_NEW);
+			quranFileWriterImpl.extractContentPerQuranPage(OPEN_OPTION);
 		} catch (final UncheckedIOException ex) {
 			LOG.debug("Quran Pages already extracted");
 		}
 		try {
-			quranFileWriterImpl.extractMetadataPerQuranPage(StandardOpenOption.CREATE_NEW);
+			quranFileWriterImpl.extractMetadataPerQuranPage(OPEN_OPTION);
 		} catch (final UncheckedIOException ex) {
 			LOG.debug("Quran metadata already extracted");
 		}
 		try {
-			quranFileWriterImpl.extractQuranIndex(CustomOpenOption.OVERRIDE);
+			quranFileWriterImpl.extractQuranIndex(OPEN_OPTION);
 		} catch (final UncheckedIOException ex) {
 			LOG.debug("Quran index already extracted");
 		}

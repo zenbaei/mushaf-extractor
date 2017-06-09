@@ -7,10 +7,11 @@ import java.util.function.Function;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.zenbaei.io.file.writer.FileWriter;
+import org.zenbaei.core.file.writer.FileWriter;
 import org.zenbaei.quran.all.Constants;
 import org.zenbaei.quran.domain.Page;
 import org.zenbaei.quran.domain.QuranMetadata;
+import org.zenbaei.quran.domain.SurahIndex;
 import org.zenbaei.quran.service.quran.parser.QuranParser;
 import org.zenbaei.quran.service.quran.parser.QuranParserHelper;
 import org.zenbaei.quran.service.quran.reader.QuranReader;
@@ -64,24 +65,15 @@ public class QuranFileExtractorImpl implements QuranExtractor {
 		write(Constants.METADATA_FILE_EXTENSION, openOption, pg -> {
 			final List<QuranMetadata> metadataList = QuranParser.toMetadata(pg.content);
 			final List<QuranMetadata> metas = QuranParserHelper.fillEmptySurahNameFromPreviousOne(metadataList);
-			final String metadataListAsJson = gson.toJson(metas);
-			LOG.debug(metadataListAsJson);
-			return metadataListAsJson;
+			return gson.toJson(metas);
 		});
 	}
 
 	@Override
 	public void extractQuranIndex(final OpenOption openOption) {
 		FileWriter.createDirectory(Constants.QURAN_EXTRACTED_FILES_BASE_PATH);
-
-		final StringBuilder strBld = new StringBuilder();
-		QuranParser.quranIndex(pages)
-			.forEach(surahIndex -> {
-				final String json = gson.toJson(surahIndex);
-				strBld.append(json).append(System.lineSeparator());
-			});
-
-		FileWriter.write(Constants.QURAN_INDEX_FILE_PATH, strBld.toString(), openOption);
+		final List<SurahIndex> surahIndexes = QuranParser.quranIndex(pages);
+		FileWriter.write(Constants.QURAN_INDEX_FILE_PATH, gson.toJson(surahIndexes), openOption);
 	}
 
 	private void write(final String fileExtension, final OpenOption openOption, final Function<Page, String> function) {
