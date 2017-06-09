@@ -7,18 +7,12 @@ import static org.junit.Assert.assertThat;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.nio.file.Files;
-import java.nio.file.OpenOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 import java.util.List;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.zenbaei.quran.BaseTest;
 import org.zenbaei.quran.all.Constants;
 import org.zenbaei.quran.domain.Page;
@@ -30,14 +24,6 @@ public class QuranFileExtractorImplTest extends BaseTest {
 	private static final String EXPECTED_OUTPUT_DIR = "src/main/resources/data/";
 	private static final List<Page> PAGES = QuranParser.toPages(
 			QuranReader.asString(Constants.QURAN_MODIFIED_DOC_FILE_PATH) );
-	private static final QuranExtractor quranFileWriterImpl = QuranFileExtractorImpl.getInstance();
-	private static final Logger LOG = LoggerFactory.getLogger(QuranFileExtractorImplTest.class);
-	private static final OpenOption OPEN_OPTION = StandardOpenOption.CREATE_NEW;
-
-	@BeforeClass
-	public static void setup() {
-		extract();
-	}
 
 	@Test
 	public void test_extractor_should_output_under_resources_data_dir() throws IOException {
@@ -105,21 +91,5 @@ public class QuranFileExtractorImplTest extends BaseTest {
 		reader.close();
 	}
 
-	private static void extract() {
-		try {
-			quranFileWriterImpl.extractContentPerQuranPage(OPEN_OPTION);
-		} catch (final UncheckedIOException ex) {
-			LOG.debug("Quran Pages already extracted");
-		}
-		try {
-			quranFileWriterImpl.extractMetadataPerQuranPage(OPEN_OPTION);
-		} catch (final UncheckedIOException ex) {
-			LOG.debug("Quran metadata already extracted");
-		}
-		try {
-			quranFileWriterImpl.extractQuranIndex(OPEN_OPTION);
-		} catch (final UncheckedIOException ex) {
-			LOG.debug("Quran index already extracted");
-		}
-	}
+
 }

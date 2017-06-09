@@ -1,25 +1,49 @@
 package org.zenbaei.quran;
 
-import java.io.IOException;
-import java.util.List;
+import java.io.UncheckedIOException;
+import java.nio.file.OpenOption;
+import java.nio.file.StandardOpenOption;
 
-import org.zenbaei.quran.domain.Token;
-import org.zenbaei.quran.token.TokenDAO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.zenbaei.quran.service.quran.extractor.QuranExtractor;
+import org.zenbaei.quran.service.quran.extractor.QuranFileExtractorImpl;
 
+/**
+ * The application start point.
+ *
+ * @author zenbaei
+ *
+ */
 public class Application {
 
+	private static final QuranExtractor quranFileWriterImpl = QuranFileExtractorImpl.getInstance();
+	private static final Logger LOG = LoggerFactory.getLogger(Application.class);
+	private static final OpenOption OPEN_OPTION = StandardOpenOption.CREATE_NEW;
 
-	public static void populateDb(final List<Token> tokens) throws IOException {
+	private Application() {}
 
-		// TokenDAO.insert(tokens);
+	public static void main(final String[] args) {
+		extract();
+	}
 
-		// SurahDAO.insert(surahs);
 
-		TokenDAO.updateWrongTokens();
-
-		TokenDAO.insertMissingAyahNumber();
-
-		System.out.println("---------done----------");
+	private static void extract() {
+		try {
+			quranFileWriterImpl.extractContentPerQuranPage(OPEN_OPTION);
+		} catch (final UncheckedIOException ex) {
+			LOG.debug("Quran Pages already extracted");
+		}
+		try {
+			quranFileWriterImpl.extractMetadataPerQuranPage(OPEN_OPTION);
+		} catch (final UncheckedIOException ex) {
+			LOG.debug("Quran metadata already extracted");
+		}
+		try {
+			quranFileWriterImpl.extractQuranIndex(OPEN_OPTION);
+		} catch (final UncheckedIOException ex) {
+			LOG.debug("Quran index already extracted");
+		}
 	}
 
 

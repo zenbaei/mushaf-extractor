@@ -51,7 +51,7 @@ public class QuranFileExtractorImpl implements QuranExtractor {
 	 */
 	@Override
 	public void extractContentPerQuranPage(final OpenOption openOption) {
-		write(Constants.QURAN_FILE_EXTENSION, openOption, pg -> pg.content);
+		write(Constants.QURAN_FILE_EXTENSION, openOption, pg -> pg.content.trim());
 	}
 
 	/**
