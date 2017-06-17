@@ -29,7 +29,7 @@ BEGIN
 	  SET @Content = '[';
 
 	   SET @Nested = CURSOR FOR
-		select CONCAT('{"ayah":''', a.kalemah, ''', "ayahNumber":', a.number, ', "tafsir":''', t.tafsir, '''}') FROM AYAH a, TAFSIR t 
+		select CONCAT('{"ayah":"', REPLACE(a.kalemah, '"', ''''), '", "ayahNumber":', a.number, ', "tafsir":"', REPLACE(t.tafsir, '"', ''''), '"}') FROM AYAH a, TAFSIR t 
 		WHERE a.SURAH_ID = @Surah_id
 		AND a._id = t.AYAH_ID
 		ORDER BY a.SURAH_ID, a._id
