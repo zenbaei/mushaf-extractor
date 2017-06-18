@@ -1,4 +1,4 @@
-package org.zenbaei.quran.service.quran.parser;
+package org.zenbaei.quran.service.parser;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.zenbaei.quran.domain.Ayah;
 import org.zenbaei.quran.domain.Page;
-import org.zenbaei.quran.domain.QuranMetadata;
+import org.zenbaei.quran.domain.QuranPageMetadata;
 import org.zenbaei.quran.domain.SurahIndex;
 import org.zenbaei.quran.util.ArabicUtils;
 import org.zenbaei.quran.util.NumberUtils;
@@ -138,12 +138,12 @@ public class QuranParser {
 	 * @return a List of AyahRange the List will contain a single {@code AyahRange} if the string contains only ayat from one surah or many
 	 * AyahRange if the string contains more than one surah
 	 */
-	public static List<QuranMetadata> toMetadata(final String content) {
+	public static List<QuranPageMetadata> toMetadata(final String content) {
 		final String[] result =  content.split(SURAH_LITERAL);
 		final List<String> surahs = Arrays.stream(result)
 				.filter(str -> !str.trim().isEmpty())
 				.collect(Collectors.toList());
-		final List<QuranMetadata> ayahRanges = new ArrayList<>();
+		final List<QuranPageMetadata> ayahRanges = new ArrayList<>();
 
 		if (surahs.isEmpty()) {
 			surahs.add(content);
@@ -151,12 +151,12 @@ public class QuranParser {
 
 		for (final String splittedPage : surahs) {
 			final List<Ayah> ayahs = toAyahs(splittedPage, 0); // page number is not needed here
-			QuranMetadata ay;
+			QuranPageMetadata ay;
 
 			if (ayahs.isEmpty()) {
-				ay = new QuranMetadata(0, 0, splittedPage.trim());
+				ay = new QuranPageMetadata(0, 0, splittedPage.trim());
 			} else {
-				ay = new QuranMetadata(ayahs.get(0).enNumber,
+				ay = new QuranPageMetadata(ayahs.get(0).enNumber,
 						ayahs.get(ayahs.size() - 1).enNumber, extractSurahName(splittedPage));
 			}
 
@@ -177,18 +177,18 @@ public class QuranParser {
 	 *
 	 * @return {@code List<SurahIndex>}
 	 */
-	public static List<SurahIndex> quranIndex(final List<Page> pages) {
+	public static List<SurahIndex> toSurahIndex(final List<Page> pages) {
 		final List<SurahIndex> list = new ArrayList<>();
 		pages.forEach(pg ->
 			QuranParser.toMetadata(pg.content)
 					.stream()
-					.filter(ay -> StringUtils.isNotEmpty(ay.surahName))
-					.forEach(ay -> {
+					.filter(metadata -> StringUtils.isNotEmpty(metadata.surahName))
+					.forEach(metadata -> {
 						int pageNumber = pg.number;
-						if (ay.fromAyah == 0) { // surah as last line
+						if (metadata.fromAyah == 0) { // surah as last line
 							pageNumber++;
 						}
-						list.add( new SurahIndex(ay.surahName, pageNumber) );
+						list.add( new SurahIndex(metadata.surahName, pageNumber) );
 					})
 				);
 		return list;

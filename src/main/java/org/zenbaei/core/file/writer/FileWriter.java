@@ -35,7 +35,6 @@ public class FileWriter {
 	 * @throws UncheckedIOException
 	 */
 	public static void write(final String filePath, final String content, final OpenOption openOption) {
-		LOG.info("Write file [{}] , file open option [{}]", filePath, openOption);
 		final Path path = Paths.get(filePath);
 		final OpenOption option =
 				(openOption == CustomOpenOption.OVERRIDE) ? StandardOpenOption.CREATE_NEW : openOption;
@@ -45,6 +44,9 @@ public class FileWriter {
 				LOG.info("Delete file [{}]", path);
 				Files.delete(path);
 			}
+
+			LOG.info("Write file [{}] , file open option [{}]", filePath, openOption);
+
 			try ( final BufferedWriter writer = Files.newBufferedWriter(path, Charset.forName("UTF-8"), option) ) {
 				writer.write(content);
 			}
@@ -63,13 +65,14 @@ public class FileWriter {
 	 * @throws UncheckedIOException
 	 */
 	public static void createDirectory(final String dir) {
-		LOG.info("Create directory [{}]", dir);
 		final Path path = Paths.get(dir);
 
 		if (Files.exists(path)) {
 			LOG.warn("Directory already exists");
 			return;
 		}
+
+		LOG.info("Create directory [{}]", dir);
 
 		try {
 			Files.createDirectories(path);

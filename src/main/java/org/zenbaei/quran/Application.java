@@ -6,8 +6,7 @@ import java.nio.file.StandardOpenOption;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.zenbaei.quran.service.quran.extractor.QuranExtractor;
-import org.zenbaei.quran.service.quran.extractor.QuranFileExtractorImpl;
+import org.zenbaei.quran.service.extractor.QuranFileExtractor;
 
 /**
  * The application start point.
@@ -17,7 +16,7 @@ import org.zenbaei.quran.service.quran.extractor.QuranFileExtractorImpl;
  */
 public class Application {
 
-	private static final QuranExtractor quranFileWriterImpl = QuranFileExtractorImpl.getInstance();
+	private static final QuranFileExtractor quranFileWriterImpl = QuranFileExtractor.getInstance();
 	private static final Logger LOG = LoggerFactory.getLogger(Application.class);
 	private static final OpenOption OPEN_OPTION = StandardOpenOption.CREATE_NEW;
 

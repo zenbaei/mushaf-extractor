@@ -1,4 +1,4 @@
-package org.zenbaei.quran.service.quran.extractor;
+package org.zenbaei.quran.service.extractor;
 
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -16,14 +16,14 @@ import org.junit.Test;
 import org.zenbaei.quran.BaseTest;
 import org.zenbaei.quran.all.Constants;
 import org.zenbaei.quran.domain.Page;
-import org.zenbaei.quran.service.quran.parser.QuranParser;
-import org.zenbaei.quran.service.quran.reader.QuranReader;
+import org.zenbaei.quran.service.parser.QuranParser;
+import org.zenbaei.quran.service.reader.QuranReader;
 
-public class QuranFileExtractorImplTest extends BaseTest {
+public class QuranFileExtractorTest extends BaseTest {
 
 	private static final String EXPECTED_OUTPUT_DIR = "src/main/resources/data/";
-	private static final List<Page> PAGES = QuranParser.toPages(
-			QuranReader.asString(Constants.QURAN_MODIFIED_DOC_FILE_PATH) );
+	private static final List<Page> PAGES = QuranParser
+			.toPages(QuranReader.asString(Constants.QURAN_MODIFIED_DOC_FILE_PATH));
 
 	@Test
 	public void test_extractor_should_output_under_resources_data_dir() throws IOException {
@@ -68,6 +68,19 @@ public class QuranFileExtractorImplTest extends BaseTest {
 	}
 
 	@Test
+	public void test_quran_metadata_extracted_content() throws IOException {
+		final int pageNu = 1;
+		final String dir = EXPECTED_OUTPUT_DIR + pageNu + "/";
+		final String file = pageNu + ".metadata";
+		final Path path = Paths.get(dir, file);
+
+		final String expectedOutput = "[{\"fromAyah\":1,\"toAyah\":7,\"surahOrder\":1}]";
+		final BufferedReader reader = Files.newBufferedReader(path);
+		assertThat(reader.readLine(), containsString(expectedOutput));
+		reader.close();
+	}
+
+	@Test
 	public void test_extract_quran_index_under_the_expected_folders() throws IOException {
 		final String dir = EXPECTED_OUTPUT_DIR;
 		final Path path = Paths.get(dir, Constants.QURAN_INDEX_FILE_NAME);
@@ -90,6 +103,5 @@ public class QuranFileExtractorImplTest extends BaseTest {
 		assertThat(firstLine, containsString(expected_string));
 		reader.close();
 	}
-
 
 }

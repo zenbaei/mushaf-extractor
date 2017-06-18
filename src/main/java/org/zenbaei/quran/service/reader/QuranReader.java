@@ -1,4 +1,4 @@
-package org.zenbaei.quran.service.quran.reader;
+package org.zenbaei.quran.service.reader;
 
 import java.io.File;
 import java.io.FileInputStream;

@@ -6,13 +6,13 @@ package org.zenbaei.quran.domain;
  * @author zenbaei
  *
  */
-public class QuranMetadata {
+public class QuranPageMetadata {
 
 	public final int fromAyah;
 	public final int toAyah;
 	public final String surahName;
 
-	public QuranMetadata(final int fromAyah, final int toAyah, final String surahName) {
+	public QuranPageMetadata(final int fromAyah, final int toAyah, final String surahName) {
 		super();
 		this.fromAyah = fromAyah;
 		this.toAyah = toAyah;

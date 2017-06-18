@@ -1,22 +1,23 @@
-package org.zenbaei.quran.service.quran.extractor;
+package org.zenbaei.quran.service.extractor;
 
 import java.nio.file.OpenOption;
 import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.zenbaei.core.file.writer.FileWriter;
 import org.zenbaei.quran.all.Constants;
 import org.zenbaei.quran.domain.Page;
-import org.zenbaei.quran.domain.QuranMetadata;
+import org.zenbaei.quran.domain.QuranPageMetadata;
 import org.zenbaei.quran.domain.SurahIndex;
-import org.zenbaei.quran.service.quran.parser.QuranParser;
-import org.zenbaei.quran.service.quran.parser.QuranParserHelper;
-import org.zenbaei.quran.service.quran.reader.QuranReader;
+import org.zenbaei.quran.service.parser.QuranParser;
+import org.zenbaei.quran.service.parser.QuranParserHelper;
+import org.zenbaei.quran.service.reader.QuranReader;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 
 /**
  * Extracts from mushaf doc to text file, each file represents a page from the document.
@@ -24,18 +25,17 @@ import com.google.gson.Gson;
  * @author zenbaei
  *
  */
-public class QuranFileExtractorImpl implements QuranExtractor {
+public class QuranFileExtractor {
 
-	private static final Logger LOG = LoggerFactory.getLogger(QuranFileExtractorImpl.class);
 	private static final Gson gson = new Gson();
-	private static final QuranFileExtractorImpl QURAN_EXTRACTOR = new QuranFileExtractorImpl();
+	private static final QuranFileExtractor QURAN_EXTRACTOR = new QuranFileExtractor();
 	private static final List<Page> pages = QuranParser.toPages(
 			QuranReader.asString(Constants.QURAN_MODIFIED_DOC_FILE_PATH) );
 
-	private QuranFileExtractorImpl() {
+	private QuranFileExtractor() {
 	}
 
-	public static QuranFileExtractorImpl getInstance() {
+	public static QuranFileExtractor getInstance() {
 		return QURAN_EXTRACTOR;
 	}
 
@@ -49,7 +49,6 @@ public class QuranFileExtractorImpl implements QuranExtractor {
 	 *
 	 * @see StandardOpenOption
 	 */
-	@Override
 	public void extractContentPerQuranPage(final OpenOption openOption) {
 		write(Constants.QURAN_FILE_EXTENSION, openOption, pg -> pg.content.trim());
 	}
@@ -60,19 +59,26 @@ public class QuranFileExtractorImpl implements QuranExtractor {
 	 * @param openOption the file creation option
 	 *
 	 */
-	@Override
 	public void extractMetadataPerQuranPage(final OpenOption openOption) {
+		final Map<String, Integer> surahOrderMap = QuranParserHelper.toSurahOrderMap( QuranParser.toSurahIndex(pages) );
 		write(Constants.METADATA_FILE_EXTENSION, openOption, pg -> {
-			final List<QuranMetadata> metadataList = QuranParser.toMetadata(pg.content);
-			final List<QuranMetadata> metas = QuranParserHelper.fillEmptySurahNameFromPreviousOne(metadataList);
-			return gson.toJson(metas);
+			final List<QuranPageMetadata> metadataList = QuranParser.toMetadata(pg.content);
+			final List<QuranPageMetadata> metas = QuranParserHelper.fillEmptySurahNameFromPreviousOne(metadataList);
+			final List<JsonObject> list = new ArrayList<>();
+			metas.forEach(metadata -> {
+				final JsonObject obj = new JsonObject();
+				obj.addProperty("fromAyah", metadata.fromAyah);
+				obj.addProperty("toAyah", metadata.toAyah);
+				obj.addProperty("surahOrder", surahOrderMap.get(metadata.surahName));
+				list.add(obj);
+			});
+			return gson.toJson(list);
 		});
 	}
 
-	@Override
 	public void extractQuranIndex(final OpenOption openOption) {
 		FileWriter.createDirectory(Constants.QURAN_EXTRACTED_FILES_BASE_PATH);
-		final List<SurahIndex> surahIndexes = QuranParser.quranIndex(pages);
+		final List<SurahIndex> surahIndexes = QuranParser.toSurahIndex(pages);
 		FileWriter.write(Constants.QURAN_INDEX_FILE_PATH, gson.toJson(surahIndexes), openOption);
 	}
 
