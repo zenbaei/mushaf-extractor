@@ -26,7 +26,6 @@ public class Application {
 		extract();
 	}
 
-
 	private static void extract() {
 		try {
 			quranFileWriterImpl.extractContentPerQuranPage(OPEN_OPTION);

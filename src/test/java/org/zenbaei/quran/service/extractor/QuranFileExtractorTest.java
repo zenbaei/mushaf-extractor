@@ -21,13 +21,13 @@ import org.zenbaei.quran.service.reader.QuranReader;
 
 public class QuranFileExtractorTest extends BaseTest {
 
-	private static final String EXPECTED_OUTPUT_DIR = "src/main/resources/data/";
+	private static final String EXPECTED_OUTPUT_DIR = "src/main/resources/data/mushaf/";
 	private static final List<Page> PAGES = QuranParser
 			.toPages(QuranReader.asString(Constants.QURAN_MODIFIED_DOC_FILE_PATH));
 
 	@Test
 	public void test_extractor_should_output_under_resources_data_dir() throws IOException {
-		final Path path = Paths.get(EXPECTED_OUTPUT_DIR + "1/", "1.page");
+		final Path path = Paths.get(EXPECTED_OUTPUT_DIR + "1/", "1.content");
 		assertThat(Files.exists(path), is(true));
 	}
 
@@ -37,7 +37,7 @@ public class QuranFileExtractorTest extends BaseTest {
 			final StringBuilder textFileContent = new StringBuilder();
 			final int pageNu = i + 1;
 			final String dir = EXPECTED_OUTPUT_DIR + pageNu + "/";
-			final String file = pageNu + ".page";
+			final String file = pageNu + ".content";
 			final Path path = Paths.get(dir, file);
 			final BufferedReader reader = Files.newBufferedReader(path);
 			String line = "";
