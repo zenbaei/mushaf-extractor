@@ -74,7 +74,7 @@ public class QuranFileExtractorTest extends BaseTest {
 		final String file = pageNu + ".metadata";
 		final Path path = Paths.get(dir, file);
 
-		final String expectedOutput = "[{\"fromAyah\":1,\"toAyah\":7,\"surahOrder\":1}]";
+		final String expectedOutput = "[{\"fromAyah\":1,\"toAyah\":7,\"surahNumber\":1}]";
 		final BufferedReader reader = Files.newBufferedReader(path);
 		assertThat(reader.readLine(), containsString(expectedOutput));
 		reader.close();

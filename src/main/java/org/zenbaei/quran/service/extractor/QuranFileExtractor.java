@@ -69,7 +69,7 @@ public class QuranFileExtractor {
 				final JsonObject obj = new JsonObject();
 				obj.addProperty("fromAyah", metadata.fromAyah);
 				obj.addProperty("toAyah", metadata.toAyah);
-				obj.addProperty("surahOrder", surahOrderMap.get(metadata.surahName));
+				obj.addProperty("surahNumber", surahOrderMap.get(metadata.surahName));
 				list.add(obj);
 			});
 			return gson.toJson(list);
