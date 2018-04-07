@@ -44,7 +44,7 @@ public class QuranParserHelperTest extends BaseTest {
 		final SurahIndex idx2 = new SurahIndex("b", 400);
 		final List<SurahIndex> surahIndexes = Arrays.asList(idx1, idx2);
 
-		final Map<String, Integer> map = QuranParserHelper.toSurahOrderMap(surahIndexes);
+		final Map<String, Integer> map = QuranParserHelper.toSurahIndexMap(surahIndexes);
 		assertThat(map.get("a"), is(equalTo(1)));
 		assertThat(map.get("b"), is(equalTo(2)));
 	}

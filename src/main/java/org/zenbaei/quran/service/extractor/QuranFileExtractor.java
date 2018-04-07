@@ -31,6 +31,7 @@ public class QuranFileExtractor {
 	private static final QuranFileExtractor QURAN_EXTRACTOR = new QuranFileExtractor();
 	private static final List<Page> pages = QuranParser.toPages(
 			QuranReader.asString(Constants.QURAN_MODIFIED_DOC_FILE_PATH) );
+	private String LAST_SURAH_NAME;
 
 	private QuranFileExtractor() {
 	}
@@ -50,7 +51,10 @@ public class QuranFileExtractor {
 	 * @see StandardOpenOption
 	 */
 	public void extractContentPerQuranPage(final OpenOption openOption) {
-		write(Constants.QURAN_FILE_EXTENSION, openOption, pg -> pg.content.trim());
+		write(Constants.QURAN_FILE_EXTENSION, openOption, pg -> {
+			String content = QuranParser.switchArabicNumbers(pg.content);
+			return content.trim();
+		});
 	}
 
 	/**
@@ -60,16 +64,17 @@ public class QuranFileExtractor {
 	 *
 	 */
 	public void extractMetadataPerQuranPage(final OpenOption openOption) {
-		final Map<String, Integer> surahOrderMap = QuranParserHelper.toSurahOrderMap( QuranParser.toSurahIndex(pages) );
+		final Map<String, Integer> surahIndexMap = QuranParserHelper.toSurahIndexMap( QuranParser.toSurahIndex(pages) );
 		write(Constants.METADATA_FILE_EXTENSION, openOption, pg -> {
 			final List<QuranPageMetadata> metadataList = QuranParser.toMetadata(pg.content);
-			final List<QuranPageMetadata> metas = QuranParserHelper.fillEmptySurahNameFromPreviousOne(metadataList);
+			LAST_SURAH_NAME = QuranParser.getLastSurahName(metadataList).orElse(LAST_SURAH_NAME);
+			final List<QuranPageMetadata> metas = QuranParserHelper.fillEmptySurahNameFromLastOne(metadataList, LAST_SURAH_NAME);
 			final List<JsonObject> list = new ArrayList<>();
 			metas.forEach(metadata -> {
 				final JsonObject obj = new JsonObject();
 				obj.addProperty("fromAyah", metadata.fromAyah);
 				obj.addProperty("toAyah", metadata.toAyah);
-				obj.addProperty("surahNumber", surahOrderMap.get(metadata.surahName));
+				obj.addProperty("surahNumber", surahIndexMap.get(metadata.surahName));
 				list.add(obj);
 			});
 			return gson.toJson(list);

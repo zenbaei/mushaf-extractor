@@ -2,6 +2,7 @@ package org.zenbaei.quran.service.parser;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Matcher;
@@ -19,7 +20,7 @@ import org.zenbaei.quran.util.NumberUtils;
 public class QuranParser {
 
 	private static final String PAGE_REGEX = ArabicUtils.formRegexWithArabicNumbers(Optional.of("\\S*$"));
-	private static final String AYAH_REGEX = ArabicUtils.formRegexWithArabicNumbers(Optional.of("\\S*\\s"));
+	private static final String AYAH_NUMBER_REGEX = ArabicUtils.formRegexWithArabicNumbers(Optional.of("\\S*\\s"));
 	private static final String REGEX_LINE_SEPARATOR_UNX_WIN = "(\\r\\n|\\n)\\s";
 	private static final String SURAH_LITERAL = "سُورَةُ";
 	private static final String SURAH_NAME_REGEX = "\\S+\\s?\\S*(\\r\\n|\\n)";
@@ -66,7 +67,7 @@ public class QuranParser {
 	 * @return list of {@code Ayah}
 	 */
 	public static List<Ayah> toAyahs(final String content, final int number) {
-		final Pattern p = Pattern.compile(AYAH_REGEX);
+		final Pattern p = Pattern.compile(AYAH_NUMBER_REGEX);
 		final Matcher m = p.matcher(content);
 
 		final List<Ayah> ayahs = new ArrayList<>();
@@ -135,8 +136,8 @@ public class QuranParser {
 	 *
 	 * @param content the string content of the mushaf page
 	 *
-	 * @return a List of AyahRange the List will contain a single {@code AyahRange} if the string contains only ayat from one surah or many
-	 * AyahRange if the string contains more than one surah
+	 * @return a List of QuranPageMetadata the List will contain a single {@code QuranPageMetadata} if the string contains only ayat from one surah or many
+	 * if the string contains more than one surah
 	 */
 	public static List<QuranPageMetadata> toMetadata(final String content) {
 		final String[] result =  content.split(SURAH_LITERAL);
@@ -145,7 +146,7 @@ public class QuranParser {
 				.collect(Collectors.toList());
 		final List<QuranPageMetadata> ayahRanges = new ArrayList<>();
 
-		if (surahs.isEmpty()) {
+		if (surahs.isEmpty()) { // if no surah on page then add the content in first index
 			surahs.add(content);
 		}
 
@@ -229,6 +230,48 @@ public class QuranParser {
 
 		return surah;
 		// StringUtils.removePattern(page.block, p.pattern());
+	}
+
+	/**
+	 * Go over the existing {@code QuranPageMetadata#surahName} and gets the last one if exists.
+	 *
+	 * @param metadataList
+	 * @return
+	 */
+	public static Optional<String> getLastSurahName(List<QuranPageMetadata> metadataList) {
+		List<String> surahs = metadataList
+								.stream()
+								.filter(meta -> StringUtils.isNotEmpty(meta.surahName))
+								.map(meta -> meta.surahName)
+								.collect(Collectors.toList());
+		return surahs.isEmpty() ? Optional.empty() : Optional.of(surahs.get(surahs.size() -1));
+	}
+
+	/**
+	 * For some reasons! when the quran content extracted file is used in javascript (quran ionic app) the number are displayed reversed.
+	 * @param quranPageContent
+	 * @return quranPageContent with number reversed
+	 */
+	public static String switchArabicNumbers(String quranPageContent) {
+		Matcher m = Pattern.compile(AYAH_NUMBER_REGEX).matcher(quranPageContent);
+		while (m.find()) {
+			String machedStr = m.group().trim();
+			String reversedArabicNumbers = reverseArabicNumbers(machedStr);
+			quranPageContent = quranPageContent.replace(machedStr, reversedArabicNumbers);
+		}
+		return quranPageContent;
+	}
+
+	/**
+	 * Search the content for Arabic numbers and reverse them.
+	 * @param str
+	 * @return
+	 */
+	protected static String reverseArabicNumbers(String str) {
+		List<String> charList = Arrays.asList(str.split("|"));
+		Collections.reverse(charList);
+		return charList.stream()
+				.reduce(String::concat).get();
 	}
 
 }

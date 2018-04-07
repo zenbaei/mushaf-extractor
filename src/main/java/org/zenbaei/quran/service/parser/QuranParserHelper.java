@@ -31,7 +31,9 @@ public class QuranParserHelper {
 	 *
 	 * @param metadataList
 	 * @return a new List with no empty surah name
+	 * @deprecated wrong code
 	 */
+	@Deprecated
 	public static List<QuranPageMetadata> fillEmptySurahNameFromPreviousOne(final List<QuranPageMetadata> metadataList) {
 		final StringBuilder currentSurah = new StringBuilder();
 		return metadataList.stream()
@@ -40,8 +42,19 @@ public class QuranParserHelper {
 						currentSurah.delete(0, currentSurah.length());
 						currentSurah.append(metadata.surahName);
 						return metadata;
-					} else {
+					} else { // stupid code, currentSurah is empty is this case
 						return new QuranPageMetadata(metadata.fromAyah, metadata.toAyah, currentSurah.toString());
+					}
+				}).collect(Collectors.toList());
+	}
+
+	public static List<QuranPageMetadata> fillEmptySurahNameFromLastOne(final List<QuranPageMetadata> metadataList, String lastSurahName) {
+		return metadataList.stream()
+				.map(metadata -> {
+					if (StringUtils.isEmpty(metadata.surahName)) {
+						return new QuranPageMetadata(metadata.fromAyah, metadata.toAyah, lastSurahName);
+					} else {
+						return new QuranPageMetadata(metadata.fromAyah, metadata.toAyah, metadata.surahName);
 					}
 				}).collect(Collectors.toList());
 	}
@@ -58,7 +71,7 @@ public class QuranParserHelper {
 	 *
 	 * @see QuranParser#toSurahIndex(List)
 	 */
-	public static Map<String, Integer> toSurahOrderMap(final List<SurahIndex> surahIndexes) {
+	public static Map<String, Integer> toSurahIndexMap(final List<SurahIndex> surahIndexes) {
 		final AtomicInteger counter = new AtomicInteger(0);
 		return surahIndexes.stream().collect(
 				Collectors.toMap(
@@ -66,5 +79,4 @@ public class QuranParserHelper {
 						si -> counter.incrementAndGet())
 				);
 	}
-
 }

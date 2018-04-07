@@ -2,6 +2,7 @@ package org.zenbaei.quran.service.parser;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
 import java.util.List;
@@ -143,6 +144,30 @@ public class QuranParserTest extends BaseTest {
 		final String expectedSurahName = ArabicUtils.removeTashkil(alNoorIndex.surahName);
 		assertThat(expectedSurahName, is(equalTo("النور")));
 		assertThat(alNoorIndex.pageNumber, is(350));
+	}
+
+	@Test
+	public void test_reversing_arabic_number() {
+		String arNo = "١١٤";
+		String reversed = QuranParser.reverseArabicNumbers(arNo);
+		assertThat(reversed, is("٤١١"));
+	}
+
+	@Test
+	public void test_replace_arabic_number_with_reversed_one() {
+		String arNo127 = "١٢٧";
+		String arNo128 = "١٢٨";
+		String arNo721 = "٧٢١";
+		String arNo821 = "٨٢١";
+
+		final Page bakarhPage = PAGES.get(19);
+		assertThat(bakarhPage.content.indexOf(arNo127), greaterThan(0));
+		assertThat(bakarhPage.content.indexOf(arNo128), greaterThan(0));
+
+		String newContent = QuranParser.switchArabicNumbers(bakarhPage.content);
+		assertThat(newContent.indexOf(arNo721), greaterThan(0));
+		assertThat(newContent.indexOf(arNo821), greaterThan(0));
+		assertThat(newContent.indexOf(arNo128), is(-1));
 	}
 
 }
